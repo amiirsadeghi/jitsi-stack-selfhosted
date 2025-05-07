@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  web:
+    image: jitsi/web:stable-10184
+    restart: always
+    environment:
+      - ENABLE_AUTH=0
+      - ENABLE_GUESTS=1
+      - XMPP_DOMAIN=meet.jitsi
+      - XMPP_SERVER=prosody
+      - XMPP_BOSH_URL_BASE=http://prosody:5280
+      - XMPP_MUC_DOMAIN=muc.meet.jitsi
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.meet.jitsi
+      - XMPP_RECORDER_DOMAIN=recorder.meet.jitsi
+      - JICOFO_AUTH_USER=focus
+      - PUBLIC_URL=https://your-domain.com
+    depends_on:
+      - prosody
+      - jicofo
+      - jvb
+
+  prosody:
+    image: jitsi/prosody:stable-10184
+    restart: always
+    environment:
+      - XMPP_DOMAIN=meet.jitsi
+      - XMPP_MUC_DOMAIN=muc.meet.jitsi
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.meet.jitsi
+      - JICOFO_COMPONENT_SECRET=secret1
+      - JICOFO_AUTH_PASSWORD=secret2
+      - JVB_AUTH_PASSWORD=secret3
+
+  jicofo:
+    image: jitsi/jicofo:stable-10184
+    restart: always
+    depends_on:
+      - prosody
+    environment:
+      - XMPP_DOMAIN=meet.jitsi
+      - XMPP_AUTH_DOMAIN=auth.meet.jitsi
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.meet.jitsi
+      - XMPP_SERVER=prosody
+      - JICOFO_COMPONENT_SECRET=secret1
+      - JICOFO_AUTH_USER=focus
+      - JICOFO_AUTH_PASSWORD=secret2
+
+  jvb:
+    image: jitsi/jvb:stable-10184
+    restart: always
+    depends_on:
+      - prosody
+    ports:
+      - "10000:10000/udp"
+    environment:
+      - XMPP_AUTH_DOMAIN=auth.meet.jitsi
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.meet.jitsi
+      - XMPP_SERVER=prosody
+      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_PASSWORD=secret3
+      - DOCKER_HOST_ADDRESS=172.16.44.230
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/jitsi.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - web
