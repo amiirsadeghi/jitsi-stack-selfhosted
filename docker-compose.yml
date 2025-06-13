@@ -58,7 +58,7 @@ services:
       - XMPP_SERVER=prosody
       - JVB_AUTH_USER=jvb
       - JVB_AUTH_PASSWORD=secret3
-      - DOCKER_HOST_ADDRESS=172.16.44.230
+      - DOCKER_HOST_ADDRESS=your_server_ip
 
   nginx:
     image: nginx:latest
