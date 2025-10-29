@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   web:
     image: jitsi/web:stable-10184
@@ -14,7 +12,7 @@ services:
       - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.meet.jitsi
       - XMPP_RECORDER_DOMAIN=recorder.meet.jitsi
       - JICOFO_AUTH_USER=focus
-      - PUBLIC_URL=https://your-domain.com
+      - PUBLIC_URL=https://your_domain_url:443
     depends_on:
       - prosody
       - jicofo
@@ -58,10 +56,10 @@ services:
       - XMPP_SERVER=prosody
       - JVB_AUTH_USER=jvb
       - JVB_AUTH_PASSWORD=secret3
-      - DOCKER_HOST_ADDRESS=your_server_ip
+      - DOCKER_HOST_ADDRESS=private_server_ip
 
   nginx:
-    image: nginx:latest
+    image: nginx:1.25-alpine
     restart: always
     ports:
       - "443:443"
